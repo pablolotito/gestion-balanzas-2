@@ -1,0 +1,4 @@
+export enum Role {
+  GLOBAL_MANAGER = 'GLOBAL_MANAGER',
+  BRANCH_MANAGER = 'BRANCH_MANAGER',
+}

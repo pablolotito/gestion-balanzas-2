@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GLOBAL_MANAGER
+  BRANCH_MANAGER
+}
+
+model User {
+  id            String             @id @default(cuid())
+  email         String             @unique
+  passwordHash  String
+  role          Role
+  name          String
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  branchAccess  UserBranchAccess[]
+}
+
+model Branch {
+  id              String              @id @default(cuid())
+  code            String              @unique
+  name            String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  scales          Scale[]
+  readings        WeightReading[]
+  branchManagers  UserBranchAccess[]
+  alertConfig     BranchAlertConfig?
+}
+
+model UserBranchAccess {
+  userId        String
+  branchId      String
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch        Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@id([userId, branchId])
+}
+
+model Scale {
+  id              String             @id @default(cuid())
+  deviceId        String             @unique
+  apiKeyHash      String
+  label           String
+  active          Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  branchId        String
+
+  branch          Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  readings        WeightReading[]
+  alertConfig     ScaleAlertConfig?
+}
+
+model WeightReading {
+  id            String   @id @default(cuid())
+  branchId      String
+  scaleId       String
+  recordedAt    DateTime
+  weight        Float
+  battery       Float?
+  status        String?
+  receivedAt    DateTime @default(now())
+
+  branch        Branch   @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  scale         Scale    @relation(fields: [scaleId], references: [id], onDelete: Restrict)
+
+  @@index([branchId, recordedAt])
+  @@index([scaleId, recordedAt])
+}
+
+model BranchAlertConfig {
+  id                String   @id @default(cuid())
+  branchId          String   @unique
+  minWeight         Float    @default(0.2)
+  maxWeight         Float    @default(25)
+  staleAfterMinutes Int      @default(30)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  branch            Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+}
+
+model ScaleAlertConfig {
+  id                String   @id @default(cuid())
+  scaleId           String   @unique
+  minWeight         Float?
+  maxWeight         Float?
+  staleAfterMinutes Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  scale             Scale    @relation(fields: [scaleId], references: [id], onDelete: Cascade)
+}
