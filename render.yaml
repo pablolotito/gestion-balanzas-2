@@ -1,6 +1,6 @@
 databases:
   - name: scale-management-db
-    plan: starter
+    plan: basic-256mb
     databaseName: scale_management
     user: scale_management
 
