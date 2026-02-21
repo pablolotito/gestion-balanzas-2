@@ -37,4 +37,3 @@ services:
         value: 20
       - key: NEXT_PUBLIC_API_URL
         value: https://scale-management-backend.onrender.com
-        sync: false
