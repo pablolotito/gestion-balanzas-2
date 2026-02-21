@@ -126,9 +126,10 @@ Body:
 }
 ```
 
-## Deploy en Render (Starter)
+## Deploy en Render (sin DB paga)
 
-Este repo incluye Blueprint en `/render.yaml`.
+Este repo incluye Blueprint en `/render.yaml` para backend+frontend.
+La DB debe ser externa (Neon/Supabase).
 
 Pasos:
 
@@ -138,7 +139,8 @@ Pasos:
 4. Verificar variable `NEXT_PUBLIC_API_URL` del frontend:
    - debe apuntar al backend real en Render
    - ejemplo: `https://scale-management-backend.onrender.com`
-5. Ejecutar seed una sola vez (Render Shell del backend):
+5. Configurar en backend la variable `DATABASE_URL` con tu URL de Neon/Supabase.
+6. Ejecutar seed una sola vez (Render Shell del backend):
 
 ```bash
 npm run prisma:seed
